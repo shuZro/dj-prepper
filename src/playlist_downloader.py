@@ -47,9 +47,12 @@ def download_playlist(playlist):
 
 def rename_wav(file, bpm):
     file_no_ext = file.split('.wav')[0]
-    new_name = "{file} - {bpm} BPM".format(file = file_no_ext, bpm = bpm)
-    print(new_name)
-    os.rename(file, new_name + '.wav')
+    if 'BPM' not in file_no_ext:
+        new_name = "{bpm} BPM - {file}".format(file = file_no_ext, bpm = bpm)
+        os.rename(file, new_name + '.wav')
+        print(new_name)
+    else:
+        print(file_no_ext)
 
 def print_wavs():
     root_path = os.curdir
@@ -70,5 +73,5 @@ def print_wavs():
             # shutil.move(file_path, os.path.join(destinationpath, file))
 
      
-#download_playlist(playlist)
+download_playlist(playlist)
 print_wavs()
