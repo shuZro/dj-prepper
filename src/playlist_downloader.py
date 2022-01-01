@@ -10,7 +10,7 @@ import math
 
 from bpm_detector import get_bpm 
 
-playlistLink = "https://www.youtube.com/playlist?list=PLHsUZjFcs-UoYd0jSbUbkrRAhQOZe8m11"
+playlistLink = 'https://www.youtube.com/playlist?list=PLHsUZjFcs-UoYd0jSbUbkrRAhQOZe8m11'
 playlist = Playlist(playlistLink)
 
 # C:\Users\shup3\.cache\youtube-dl
@@ -31,7 +31,7 @@ def download_video(url):
 
     print("Done ->", url) 
 
-def start(playlist):
+def download_playlist(playlist):
     threads = list()
 
     for url in playlist.video_urls:
@@ -45,7 +45,13 @@ def start(playlist):
 
     time.sleep(1)
 
-def print_songs(playlist):
+def rename_wav(file, bpm):
+    file_no_ext = file.split('.wav')[0]
+    new_name = "{file} - {bpm} BPM".format(file = file_no_ext, bpm = bpm)
+    print(new_name)
+    os.rename(file, new_name + '.wav')
+
+def print_wavs():
     root_path = os.curdir
     files = os.listdir(root_path)
 
@@ -59,9 +65,10 @@ def print_songs(playlist):
         if file.endswith('.wav'):
             file_path = os.path.join(root_path, file)
             bpm = math.floor(get_bpm(file_path))
-            print(file, bpm)
+
+            rename_wav(file, bpm)
             # shutil.move(file_path, os.path.join(destinationpath, file))
 
-        
-start(playlist)
-print_songs(playlist)
+     
+#download_playlist(playlist)
+print_wavs()
