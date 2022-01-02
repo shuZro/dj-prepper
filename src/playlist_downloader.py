@@ -8,7 +8,8 @@ import threading
 import time
 import math
 
-from bpm_detector import get_bpm 
+from bpm_detector import get_bpm
+from key_finder import get_key
 
 playlistLink = 'https://www.youtube.com/playlist?list=PLHsUZjFcs-UoYd0jSbUbkrRAhQOZe8m11'
 playlist = Playlist(playlistLink)
@@ -45,10 +46,10 @@ def download_playlist(playlist):
 
     time.sleep(1)
 
-def rename_wav(file, bpm):
+def rename_wav(file, bpm, key):
     file_no_ext = file.split('.wav')[0]
     if 'BPM' not in file_no_ext:
-        new_name = "{bpm} BPM - {file}".format(file = file_no_ext, bpm = bpm)
+        new_name = "{key} - {bpm} BPM - {file}".format(key = key, bpm = bpm, file = file_no_ext)
         os.rename(file, new_name + '.wav')
         print(new_name)
     else:
@@ -68,8 +69,8 @@ def print_wavs():
         if file.endswith('.wav'):
             file_path = os.path.join(root_path, file)
             bpm = math.floor(get_bpm(file_path))
-
-            rename_wav(file, bpm)
+            key = get_key(file_path)
+            rename_wav(file, bpm, key)
             # shutil.move(file_path, os.path.join(destinationpath, file))
 
      

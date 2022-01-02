@@ -2,3 +2,4 @@ numpy
 aubio
 youtube_dl
 pytube
+librosa
