@@ -16,10 +16,10 @@ downloaded_path = os.curdir + '/Downloaded'
 playlistLink = 'https://www.youtube.com/playlist?list=PLHsUZjFcs-UoYd0jSbUbkrRAhQOZe8m11'
 playlist = Playlist(playlistLink)
 
-def download_video(url, aca, ins, out_name = ''):
+def download_video(url, aca, ins, out_name = 'Downloaded/%(title)s.%(etx)s'):
     with YoutubeDL({'quiet': True}) as video:
         title = video.extract_info(url, download=False)['title'] \
-        .replace('/', '')\
+        .replace('/', '') \
         .replace('[', '').replace(']', '')\
         .replace('Video', '') \
         .replace('Official', '') \
