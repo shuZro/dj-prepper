@@ -5,8 +5,9 @@
 pip install -r requirements.txt
 ```
 
-## todo
+## how to use
 
-- add cmd arguments
-- add threads for key finder
-- get acapella and instrumentals -> use spleeter & search youtube as well
+- -p prep wav files (get bpm and key)
+- -a saearch and download acapellas
+- -i saearch and download instrumentals
+- -u playlist url

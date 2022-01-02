@@ -10,9 +10,6 @@ from playlist_downloader import download_playlist
 
 downloaded_path = os.curdir + '/Downloaded'
 
-playlistLink = 'https://www.youtube.com/playlist?list=PLHsUZjFcs-UoYd0jSbUbkrRAhQOZe8m11'
-playlist = Playlist(playlistLink)
-
 def prep_wav(file):
     file_path = os.path.join(downloaded_path, file)
     file_no_ext = file.split('.wav')[0]
@@ -45,5 +42,33 @@ def prep_wavs():
         thread.join()
 
 if __name__ == '__main__':
-    download_playlist(playlist, True, True)
-    prep_wavs()
+    import argparse
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument('-p',
+        help="prep files",
+        dest="prep", action='store_true')
+    parser.set_defaults(prep=False)
+
+    parser.add_argument('-a',
+        help="download acapella",
+        dest="acapella", action='store_true')
+    parser.set_defaults(acapella=False)
+    
+    parser.add_argument('-i',
+        help="download instrumental",
+        dest="instrumental", action='store_true')
+    parser.set_defaults(instrumental=False)
+
+    parser.add_argument('-u',
+        help="playlist url",
+        dest="playlist")
+
+    args = parser.parse_args()
+    
+    if args.playlist != None:
+        playlist = Playlist(args.playlist)
+        download_playlist(playlist, args.acapella, args.instrumental)
+
+    if args.prep == True:
+        prep_wavs()
