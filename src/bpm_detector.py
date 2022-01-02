@@ -1,3 +1,5 @@
+# https://github.com/aubio/aubio/blob/master/python/demos/demo_bpm_extract.py
+
 from aubio import source, tempo
 from numpy import median, diff
 import os
