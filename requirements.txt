@@ -3,3 +3,4 @@ aubio
 youtube_dl
 pytube
 librosa
+youtube-search-python

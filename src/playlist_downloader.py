@@ -1,5 +1,6 @@
 from pytube import Playlist
 from youtube_dl import YoutubeDL
+from youtubesearchpython import VideosSearch
 
 import shutil
 
@@ -11,14 +12,14 @@ import math
 from bpm_detector import get_bpm
 from key_finder import get_key
 
+threads = list()
+
 playlistLink = 'https://www.youtube.com/playlist?list=PLHsUZjFcs-UoYd0jSbUbkrRAhQOZe8m11'
 playlist = Playlist(playlistLink)
 
-# C:\Users\shup3\.cache\youtube-dl
-
-def download_video(url):    
+def download_video(url, aca, ins, out_name = 'Downloaded/%(title)s.%(etx)s'):
     ydl_opts = {
-        'outtmpl': '%(title)s.%(etx)s',
+        'outtmpl': out_name,
         'quiet': True,
         'format': 'bestaudio/best',
         'postprocessors': [{
@@ -27,17 +28,42 @@ def download_video(url):
             'preferredquality': '192',
         }],
     }
+
+    with YoutubeDL({'quiet': True}) as video:
+        title = video.extract_info(url, download=False)['title'].replace('/', '')
+
+        if (aca == True):
+            acapella_search = VideosSearch(title + ' studio acapella', limit = 1)
+            acapella_url = acapella_search.result()['result'][0]['id']
+
+            print("Downloading Acapella ->", acapella_url)
+            acapella_name = 'Downloaded/Acapella/' + title + ' - Acapella.wav'
+            thread = threading.Thread(target=download_video, args=(acapella_url, False, False, acapella_name))
+            threads.append(thread)
+            thread.start()
+
+        if (ins == True):
+            instrumental_search = VideosSearch(title + ' official instrumental', limit = 1)
+            instrumental_url = instrumental_search.result()['result'][0]['id']
+
+            print("Downloading Instrumental ->", instrumental_url)
+            instrumental_name = 'Downloaded/Instrumental/' + title + ' - Instrumental.wav'
+            thread = threading.Thread(target=download_video, args=(instrumental_url, False, False, instrumental_name))
+            threads.append(thread)
+            thread.start()
+        
+    
     with YoutubeDL(ydl_opts) as video:
         video.download([url])
 
     print("Done ->", url) 
 
-def download_playlist(playlist):
+def download_playlist(playlist, aca = False, ins = False):
     threads = list()
 
     for url in playlist.video_urls:
         print("Downloading ->", url)
-        thread = threading.Thread(target=download_video, args=(url,))
+        thread = threading.Thread(target=download_video, args=(url, aca, ins,))
         threads.append(thread)
         thread.start()
 
@@ -46,8 +72,15 @@ def download_playlist(playlist):
 
     time.sleep(1)
 
-def rename_wav(file, bpm, key):
+def prep_wav(file):
+    root_path = os.curdir
+    file_path = os.path.join(root_path, file)
+    
+    bpm = math.floor(get_bpm(file_path))
+    key = get_key(file_path)
+    
     file_no_ext = file.split('.wav')[0]
+
     if 'BPM' not in file_no_ext:
         new_name = "{key} - {bpm} BPM - {file}".format(key = key, bpm = bpm, file = file_no_ext)
         os.rename(file, new_name + '.wav')
@@ -55,11 +88,11 @@ def rename_wav(file, bpm, key):
     else:
         print(file_no_ext)
 
-def print_wavs():
+def prep_wavs():
+    threads = list()
+    
     root_path = os.curdir
     files = os.listdir(root_path)
-
-    destinationpath = ''
     
     print("\nSongs: ")
     #for video in playlist.videos:
@@ -67,12 +100,14 @@ def print_wavs():
 
     for file in files:
         if file.endswith('.wav'):
-            file_path = os.path.join(root_path, file)
-            bpm = math.floor(get_bpm(file_path))
-            key = get_key(file_path)
-            rename_wav(file, bpm, key)
-            # shutil.move(file_path, os.path.join(destinationpath, file))
+            if 'aca' not in file.lower() and 'ins' not in file.lower():
+                thread = threading.Thread(target=prep_wav, args=(file,))
+                threads.append(thread)
+                thread.start()
 
-     
-download_playlist(playlist)
-print_wavs()
+    for index, thread in enumerate(threads): # close threads
+        thread.join()
+
+            # shutil.move(file_path, os.path.join(destinationpath, file))
+download_playlist(playlist, True, True)
+prep_wavs()
