@@ -94,13 +94,12 @@ def prep_wavs():
 
     for file in files:
         if file.endswith('.wav'):
-            if 'aca' not in file.lower() and 'ins' not in file.lower():
-                thread = threading.Thread(target=prep_wav, args=(file,))
-                threads.append(thread)
-                thread.start()
+            thread = threading.Thread(target=prep_wav, args=(file,))
+            threads.append(thread)
+            thread.start()
 
     for index, thread in enumerate(threads): # close threads
         thread.join()
 
-#download_playlist(playlist, True, True)
+download_playlist(playlist, True, True)
 prep_wavs()
