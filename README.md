@@ -11,3 +11,4 @@ pip install -r requirements.txt
 - -a saearch and download acapellas
 - -i saearch and download instrumentals
 - -u playlist url
+- -h help
