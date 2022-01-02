@@ -7,7 +7,12 @@ import os
 def get_bpm(path):
     samplerate, win_s, hop_s = 48000, 1024, 512
 
-    s = source(path, samplerate, hop_s)
+    try:
+        s = source(path, samplerate, hop_s)
+    except:
+        samplerate = 44100
+        s = source(path, samplerate, hop_s)
+
     samplerate = s.samplerate
     o = tempo("specdiff", win_s, hop_s, samplerate)
     beats = []
