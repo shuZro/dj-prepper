@@ -12,3 +12,5 @@ pip install -r requirements.txt
 - -i saearch and download instrumentals
 - -u playlist url
 - -h help
+
+python dj_prepper.py -p -a -i -u YOUTUBE_PLAYLIST_URL
