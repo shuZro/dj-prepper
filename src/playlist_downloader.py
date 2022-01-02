@@ -10,10 +10,12 @@ def download_video(url, aca, ins, out_name = 'Downloaded/%(title)s.%(etx)s'):
     with YoutubeDL({'quiet': True}) as video:
         title = video.extract_info(url, download=False)['title'] \
         .replace('/', '') \
-        .replace('[', '').replace(']', '')\
+        .replace('[', '').replace(']', '') \
+         .replace('(', '').replace(')', '') \
         .replace('Video', '') \
+        .replace('Music', '') \
         .replace('Official', '') \
-        .replace(' MV', '') \
+        .replace('MV', '') \
         .strip()
 
         if (aca == True):
