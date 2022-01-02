@@ -16,20 +16,15 @@ downloaded_path = os.curdir + '/Downloaded'
 playlistLink = 'https://www.youtube.com/playlist?list=PLHsUZjFcs-UoYd0jSbUbkrRAhQOZe8m11'
 playlist = Playlist(playlistLink)
 
-def download_video(url, aca, ins, out_name = 'Downloaded/%(title)s.%(etx)s'):
-    ydl_opts = {
-        'outtmpl': out_name,
-        'quiet': True,
-        'format': 'bestaudio/best',
-        'postprocessors': [{
-            'key': 'FFmpegExtractAudio',
-            'preferredcodec': 'wav',
-            'preferredquality': '192',
-        }],
-    }
-
+def download_video(url, aca, ins, out_name = ''):
     with YoutubeDL({'quiet': True}) as video:
-        title = video.extract_info(url, download=False)['title'].replace('/', '')
+        title = video.extract_info(url, download=False)['title'] \
+        .replace('/', '')\
+        .replace('[', '').replace(']', '')\
+        .replace('Video', '') \
+        .replace('Official', '') \
+        .replace(' MV', '') \
+        .strip()
 
         if (aca == True):
             acapella_search = VideosSearch(title + ' studio acapella', limit = 1)
@@ -50,10 +45,23 @@ def download_video(url, aca, ins, out_name = 'Downloaded/%(title)s.%(etx)s'):
             thread = threading.Thread(target=download_video, args=(instrumental_url, False, False, instrumental_name))
             threads.append(thread)
             thread.start()
-        
+
+        if out_name == '':
+            out_name = 'Downloaded/' + title + '.wav'
+
+        ydl_opts = {
+            'outtmpl': out_name,
+            'quiet': True,
+            'format': 'bestaudio/best',
+            'postprocessors': [{
+                'key': 'FFmpegExtractAudio',
+                'preferredcodec': 'wav',
+                'preferredquality': '192',
+            }],
+        }
     
-    with YoutubeDL(ydl_opts) as video:
-        video.download([url])
+        with YoutubeDL(ydl_opts) as video:
+            video.download([url])
 
     print("Done ->", url) 
 
@@ -69,7 +77,7 @@ def download_playlist(playlist, aca = False, ins = False):
     for index, thread in enumerate(threads): # close threads
         thread.join()
 
-    time.sleep(1)
+    time.sleep(2)
 
 def prep_wav(file):
     file_path = os.path.join(downloaded_path, file)
@@ -86,6 +94,7 @@ def prep_wav(file):
         print(file_no_ext)
 
 def prep_wavs():
+    threads = list()
     files = os.listdir(downloaded_path)
     
     print("\nSongs: ")
