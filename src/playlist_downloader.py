@@ -2,8 +2,6 @@ from pytube import Playlist
 from youtube_dl import YoutubeDL
 from youtubesearchpython import VideosSearch
 
-import shutil
-
 import os
 import threading
 import time
@@ -13,6 +11,7 @@ from bpm_detector import get_bpm
 from key_finder import get_key
 
 threads = list()
+downloaded_path = os.curdir + '/Downloaded'
 
 playlistLink = 'https://www.youtube.com/playlist?list=PLHsUZjFcs-UoYd0jSbUbkrRAhQOZe8m11'
 playlist = Playlist(playlistLink)
@@ -73,26 +72,21 @@ def download_playlist(playlist, aca = False, ins = False):
     time.sleep(1)
 
 def prep_wav(file):
-    root_path = os.curdir
-    file_path = os.path.join(root_path, file)
-    
-    bpm = math.floor(get_bpm(file_path))
-    key = get_key(file_path)
-    
+    file_path = os.path.join(downloaded_path, file)
     file_no_ext = file.split('.wav')[0]
 
-    if 'BPM' not in file_no_ext:
+    if 'BPM' not in file_no_ext: 
+        bpm = math.floor(get_bpm(file_path))
+        key = get_key(file_path)
+        
         new_name = "{key} - {bpm} BPM - {file}".format(key = key, bpm = bpm, file = file_no_ext)
-        os.rename(file, new_name + '.wav')
+        os.rename(file_path, os.path.join(downloaded_path, new_name + '.wav'))
         print(new_name)
     else:
         print(file_no_ext)
 
 def prep_wavs():
-    threads = list()
-    
-    root_path = os.curdir
-    files = os.listdir(root_path)
+    files = os.listdir(downloaded_path)
     
     print("\nSongs: ")
     #for video in playlist.videos:
@@ -108,6 +102,5 @@ def prep_wavs():
     for index, thread in enumerate(threads): # close threads
         thread.join()
 
-            # shutil.move(file_path, os.path.join(destinationpath, file))
-download_playlist(playlist, True, True)
+#download_playlist(playlist, True, True)
 prep_wavs()
