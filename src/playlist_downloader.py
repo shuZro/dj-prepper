@@ -12,7 +12,7 @@ youtubePath = 'https://www.youtube.com/watch?v='
 
 def convert_to_wav(file_name):
     command = ['ffmpeg', '-i', file_name, file_name + '.wav']
-    subprocess.run(command,stdout=subprocess.PIPE,stdin=subprocess.PIPE)
+    subprocess.run(command, stderr=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stdin=subprocess.DEVNULL)
     os.remove(file_name)
 
 def download_video(url, aca, ins, out_path = 'Downloaded', file_name=''):
