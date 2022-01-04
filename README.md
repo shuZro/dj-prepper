@@ -1,6 +1,8 @@
 # dj-prepper
 
 ## installation
+Install FFmpeg -> https://www.ffmpeg.org/
+
 ```
 pip install -r requirements.txt
 ```
