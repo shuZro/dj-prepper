@@ -1,14 +1,25 @@
-from youtube_dl import YoutubeDL
+from pytube import YouTube
 from youtubesearchpython import VideosSearch
 
+import os
+import subprocess
 import threading
 import time
 
 threads = list()
 
-def download_video(url, aca, ins, out_name = 'Downloaded/%(title)s.%(etx)s'):
-    with YoutubeDL({'quiet': True}) as video:
-        title = video.extract_info(url, download=False)['title'] \
+youtubePath = 'https://www.youtube.com/watch?v='
+
+def convert_to_wav(file_name):
+    command = ['ffmpeg', '-i', file_name, file_name + '.wav']
+    subprocess.run(command,stdout=subprocess.PIPE,stdin=subprocess.PIPE)
+    os.remove(file_name)
+
+def download_video(url, aca, ins, out_path = 'Downloaded', file_name=''):
+    yt = YouTube(url)
+
+    if file_name == '':
+        file_name = yt.title \
         .replace('/', '') \
         .replace('[', '').replace(']', '') \
         .replace('(', '').replace(')', '') \
@@ -16,45 +27,35 @@ def download_video(url, aca, ins, out_name = 'Downloaded/%(title)s.%(etx)s'):
         .replace('Music', '') \
         .replace('Official', '') \
         .replace('MV', '') \
+        .replace(':', '') \
         .strip()
 
-        if (aca == True):
-            acapella_search = VideosSearch(title + ' studio acapella', limit = 1)
-            acapella_url = acapella_search.result()['result'][0]['id']
+    if (aca == True):
+        acapella_search = VideosSearch(file_name + ' studio acapella', limit = 1)
+        acapella_url = youtubePath + acapella_search.result()['result'][0]['id']
 
-            print("Downloading Acapella ->", acapella_url)
-            acapella_name = 'Downloaded/Acapella/' + title + ' - Acapella.wav'
-            thread = threading.Thread(target=download_video, args=(acapella_url, False, False, acapella_name))
-            threads.append(thread)
-            thread.start()
+        print("Downloading Acapella ->", acapella_url)
+        acapella_name = file_name + ' - Acapella'
+        acapella_path = out_path + '/Acapella'
+        thread = threading.Thread(target=download_video, args=(acapella_url, False, False, acapella_path, acapella_name))
+        threads.append(thread)
+        thread.start()
 
-        if (ins == True):
-            instrumental_search = VideosSearch(title + ' official instrumental', limit = 1)
-            instrumental_url = instrumental_search.result()['result'][0]['id']
+    if (ins == True):
+        instrumental_search = VideosSearch(file_name + ' official instrumental', limit = 1)
+        instrumental_url = youtubePath + instrumental_search.result()['result'][0]['id']
 
-            print("Downloading Instrumental ->", instrumental_url)
-            instrumental_name = 'Downloaded/Instrumental/' + title + ' - Instrumental.wav'
-            thread = threading.Thread(target=download_video, args=(instrumental_url, False, False, instrumental_name))
-            threads.append(thread)
-            thread.start()
+        print("Downloading Instrumental ->", instrumental_url)
+        instrumental_name = file_name + ' - Instrumental'
+        instrumental_path = out_path + '/Instrumental' 
+        thread = threading.Thread(target=download_video, args=(instrumental_url, False, False, instrumental_path, instrumental_name))
+        threads.append(thread)
+        thread.start()
 
-        if out_name == '':
-            out_name = 'Downloaded/' + title + '.wav'
-
-        ydl_opts = {
-            'outtmpl': out_name,
-            'quiet': True,
-            'format': 'bestaudio/best',
-            'postprocessors': [{
-                'key': 'FFmpegExtractAudio',
-                'preferredcodec': 'wav',
-                'preferredquality': '192',
-            }],
-        }
+    out_name = out_path + '/' + file_name
+    yt.streams.filter(only_audio=True).order_by('abr').desc()[0].download(output_path=out_path, filename=file_name)
+    convert_to_wav(out_name)
     
-        with YoutubeDL(ydl_opts) as video:
-            video.download([url])
-
     print("Done ->", url) 
 
 def download_playlist(playlist, aca = False, ins = False):
