@@ -28,6 +28,7 @@ def download_video(url, aca, ins, out_path = 'Downloaded', file_name=''):
         .replace('Official', '') \
         .replace('MV', '') \
         .replace('HD', '') \
+        .replace('Lyrics', '') \
         .replace(':', '') \
         .replace('’', "'") \
         .strip()
